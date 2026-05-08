@@ -3,6 +3,7 @@
 
 import { WindowApiType } from '../../../preload'
 import { ElectronAPI } from '@electron-toolkit/preload'
+import { ProactiveSuggestion, ProactiveSuggestionResponse } from './proactive-suggestion'
 
 interface ScreenMonitorAPI {
   checkPermissions: () => Promise<boolean>
@@ -117,5 +118,9 @@ declare global {
     fileService: any
     serverPushAPI: serverPushAPI
     eventLoop: EventLoopAPI
+    proactiveSuggestionAPI: {
+      show: (suggestion: ProactiveSuggestion) => Promise<void>
+      onResponse: (callback: (response: ProactiveSuggestionResponse) => void) => () => void
+    }
   }
 }

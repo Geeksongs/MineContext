@@ -9,7 +9,6 @@ import { ProactiveSuggestion, ProactiveSuggestionResponse } from 'src/renderer/s
 class NotificationService {
   private window: BrowserWindow
   private lastAction: 'accept' | 'reject' = 'accept'
-  private pendingSuggestionId: string | null = null
 
   constructor(window: BrowserWindow) {
     this.window = window
@@ -30,8 +29,6 @@ class NotificationService {
   }
 
   async sendProactiveSuggestion(suggestion: ProactiveSuggestion): Promise<void> {
-    this.pendingSuggestionId = suggestion.id
-
     const notification = new ElectronNotificationApp({
       title: `💡 ${suggestion.title || 'Smart Tip'}`,
       body: suggestion.content,
@@ -58,10 +55,6 @@ class NotificationService {
       this.window.show()
     })
 
-    notification.on('close', () => {
-      this.pendingSuggestionId = null
-    })
-
     notification.show()
   }
 
@@ -73,9 +66,7 @@ class NotificationService {
       timestamp: Date.now()
     }
 
-    // Send response to renderer process
     this.window.webContents.send(IpcServerPushChannel.ProactiveSuggestion_Response, response)
-    this.pendingSuggestionId = null
   }
 }
 
