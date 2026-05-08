@@ -28,7 +28,10 @@ class ScreenshotService extends CaptureSourcesTools {
   async checkPermissions(): Promise<boolean> {
     if (isMac) {
       const status = systemPreferences.getMediaAccessStatus('screen')
-      return status === 'granted'
+      // 'not-determined' means the system hasn't confirmed either way — this commonly
+      // happens with ad-hoc signed / unsigned builds even after the user grants access
+      // in System Settings. Only hard-block on explicit denial.
+      return status !== 'denied'
     }
     return true
   }
