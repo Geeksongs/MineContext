@@ -332,19 +332,6 @@ class CaptureSourcesTools {
   }
   async takeSourceScreenshotTools(sourceId: string) {
     try {
-      // Check permissions on macOS
-      if (process.platform === 'darwin') {
-        const hasScreenPermission = systemPreferences.getMediaAccessStatus('screen')
-        if (hasScreenPermission !== 'granted') {
-          const permissionGranted = await systemPreferences.askForMediaAccess('camera')
-          if (!permissionGranted) {
-            throw new Error(
-              'Screen recording permission not granted. Please grant screen recording permissions in System Preferences > Security & Privacy > Screen Recording and restart the application.'
-            )
-          }
-        }
-      }
-
       // Handle virtual windows (minimized or on other spaces)
       if (sourceId.startsWith('virtual-window:')) {
         // Extract app name from the source ID
