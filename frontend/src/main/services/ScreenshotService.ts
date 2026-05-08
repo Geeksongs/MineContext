@@ -28,10 +28,19 @@ class ScreenshotService extends CaptureSourcesTools {
   async checkPermissions(): Promise<boolean> {
     if (isMac) {
       const status = systemPreferences.getMediaAccessStatus('screen')
-      // 'not-determined' means the system hasn't confirmed either way — this commonly
-      // happens with ad-hoc signed / unsigned builds even after the user grants access
-      // in System Settings. Only hard-block on explicit denial.
-      return status !== 'denied'
+      if (status === 'granted') return true
+      // For unsigned / ad-hoc signed builds, TCC may report 'denied' or
+      // 'not-determined' even after the user grants access in System Settings.
+      // Fall back to actually attempting a capture as the ground truth.
+      try {
+        const sources = await desktopCapturer.getSources({
+          types: ['screen'],
+          thumbnailSize: { width: 1, height: 1 }
+        })
+        return sources.length > 0
+      } catch {
+        return false
+      }
     }
     return true
   }
