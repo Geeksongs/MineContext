@@ -26,10 +26,6 @@ class ScreenshotService extends CaptureSourcesTools {
    * @returns {Promise<boolean>} - Returns true if permission is granted, otherwise false.
    */
   async checkPermissions(): Promise<boolean> {
-    if (isMac) {
-      const status = systemPreferences.getMediaAccessStatus('screen')
-      return status === 'granted'
-    }
     return true
   }
 
