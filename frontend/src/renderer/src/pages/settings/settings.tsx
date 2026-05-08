@@ -157,14 +157,18 @@ const StandardFormItems: FC<StandardFormItemsProps> = (props) => {
             You can get the API Key Here:
             <Button
               onClick={() => {
-                const url =
-                  modelPlatform === ModelTypeList.Doubao
-                    ? 'https://www.volcengine.com/docs/82379/1541594'
-                    : 'https://platform.openai.com/settings/organization/api-keys'
-                window.open(`${url}`)
+                const urlMap: Record<string, string> = {
+                  [ModelTypeList.Doubao]: 'https://www.volcengine.com/docs/82379/1541594',
+                  [ModelTypeList.OpenAI]: 'https://platform.openai.com/settings/organization/api-keys',
+                  [ModelTypeList.Claude]: 'https://console.anthropic.com/settings/keys',
+                  [ModelTypeList.Gemini]: 'https://aistudio.google.com/apikey',
+                  [ModelTypeList.DeepSeek]: 'https://platform.deepseek.com/api_keys',
+                  [ModelTypeList.Qwen]: 'https://dashscope.console.aliyun.com/apiKey'
+                }
+                window.open(urlMap[modelPlatform] || urlMap[ModelTypeList.OpenAI])
               }}
               type="text">
-              {modelPlatform === ModelTypeList.Doubao ? 'Get Doubao API Key' : 'Get OpenAI API Key'}
+              {`Get ${modelPlatform.charAt(0).toUpperCase() + modelPlatform.slice(1)} API Key`}
             </Button>
           </div>
         }
@@ -246,15 +250,28 @@ const Settings: FC<SettingsProps> = (props) => {
       const formatData = Object.fromEntries(
         Object.entries(data).map(([key, value]) => [key.replace(`${values.modelPlatform}-`, ''), value])
       )
+      const baseUrlMap: Record<string, string> = {
+        [ModelTypeList.Doubao]: BaseUrl.DoubaoUrl,
+        [ModelTypeList.OpenAI]: BaseUrl.OpenAIUrl,
+        [ModelTypeList.Claude]: BaseUrl.ClaudeUrl,
+        [ModelTypeList.Gemini]: BaseUrl.GeminiUrl,
+        [ModelTypeList.DeepSeek]: BaseUrl.DeepSeekUrl,
+        [ModelTypeList.Qwen]: BaseUrl.QwenUrl
+      }
+      const embeddingModelMap: Record<string, string> = {
+        [ModelTypeList.Doubao]: embeddingModels.DoubaoEmbeddingModelId,
+        [ModelTypeList.OpenAI]: embeddingModels.OpenAIEmbeddingModelId,
+        [ModelTypeList.Claude]: embeddingModels.ClaudeEmbeddingModelId,
+        [ModelTypeList.Gemini]: embeddingModels.GeminiEmbeddingModelId,
+        [ModelTypeList.DeepSeek]: embeddingModels.DeepSeekEmbeddingModelId,
+        [ModelTypeList.Qwen]: embeddingModels.QwenEmbeddingModelId
+      }
       const params = isCustom
         ? formatData
         : {
             ...formatData,
-            baseUrl: values.modelPlatform === ModelTypeList.Doubao ? BaseUrl.DoubaoUrl : BaseUrl.OpenAIUrl,
-            embeddingModelId:
-              values.modelPlatform === ModelTypeList.Doubao
-                ? embeddingModels.DoubaoEmbeddingModelId
-                : embeddingModels.OpenAIEmbeddingModelId
+            baseUrl: baseUrlMap[values.modelPlatform] || BaseUrl.OpenAIUrl,
+            embeddingModelId: embeddingModelMap[values.modelPlatform] || embeddingModels.OpenAIEmbeddingModelId
           }
 
       updateModelSettings(params as unknown as ModelConfigProps)
@@ -299,7 +316,11 @@ const Settings: FC<SettingsProps> = (props) => {
               initialValues={{
                 modelPlatform: ModelTypeList.Doubao,
                 [`${ModelTypeList.Doubao}-modelId`]: 'doubao-seed-1-6-flash-250828',
-                [`${ModelTypeList.OpenAI}-modelId`]: 'gpt-5-nano'
+                [`${ModelTypeList.OpenAI}-modelId`]: 'gpt-4o',
+                [`${ModelTypeList.Claude}-modelId`]: 'claude-sonnet-4-20250514',
+                [`${ModelTypeList.Gemini}-modelId`]: 'gemini-2.5-flash-preview-05-20',
+                [`${ModelTypeList.DeepSeek}-modelId`]: 'deepseek-chat',
+                [`${ModelTypeList.Qwen}-modelId`]: 'qwen-plus'
               }}>
               <FormItem label="Model platform" field={'modelPlatform'} requiredSymbol={false}>
                 <ModelRadio />
@@ -311,10 +332,15 @@ const Settings: FC<SettingsProps> = (props) => {
                   const modelPlatform = values.modelPlatform
                   if (modelPlatform === ModelTypeList.Custom) {
                     return <CustomFormItems prefix={ModelTypeList.Custom} />
-                  } else if (modelPlatform === ModelTypeList.Doubao) {
-                    return <StandardFormItems modelPlatform={modelPlatform} prefix={ModelTypeList.Doubao} />
-                  } else if (modelPlatform === ModelTypeList.OpenAI) {
-                    return <StandardFormItems modelPlatform={modelPlatform} prefix={ModelTypeList.OpenAI} />
+                  } else if (
+                    modelPlatform === ModelTypeList.Doubao ||
+                    modelPlatform === ModelTypeList.OpenAI ||
+                    modelPlatform === ModelTypeList.Claude ||
+                    modelPlatform === ModelTypeList.Gemini ||
+                    modelPlatform === ModelTypeList.DeepSeek ||
+                    modelPlatform === ModelTypeList.Qwen
+                  ) {
+                    return <StandardFormItems modelPlatform={modelPlatform} prefix={modelPlatform} />
                   } else {
                     return null
                   }

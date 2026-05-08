@@ -4,21 +4,37 @@
 import { ReactNode } from 'react'
 import openAI from '../../assets/images/settings/OpenAI.png'
 import doubao from '../../assets/images/settings/doubao.png'
+import claude from '../../assets/images/settings/claude.svg'
+import gemini from '../../assets/images/settings/gemini.svg'
+import deepseek from '../../assets/images/settings/deepseek.svg'
+import qwen from '../../assets/images/settings/qwen.svg'
 import custom from '../../assets/images/settings/custom.svg'
 
 export enum ModelTypeList {
   Doubao = 'doubao',
   OpenAI = 'openai',
+  Claude = 'claude',
+  Gemini = 'gemini',
+  DeepSeek = 'deepseek',
+  Qwen = 'qwen',
   Custom = 'custom'
 }
 
 export enum embeddingModels {
   DoubaoEmbeddingModelId = 'doubao-embedding-vision-250615',
-  OpenAIEmbeddingModelId = 'text-embedding-3-large'
+  OpenAIEmbeddingModelId = 'text-embedding-3-large',
+  ClaudeEmbeddingModelId = 'text-embedding-3-large',
+  GeminiEmbeddingModelId = 'text-embedding-004',
+  DeepSeekEmbeddingModelId = 'text-embedding-3-large',
+  QwenEmbeddingModelId = 'text-embedding-v3'
 }
 export enum BaseUrl {
   DoubaoUrl = 'https://ark.cn-beijing.volces.com/api/v3',
-  OpenAIUrl = 'https://api.openai.com/v1'
+  OpenAIUrl = 'https://api.openai.com/v1',
+  ClaudeUrl = 'https://api.anthropic.com/v1',
+  GeminiUrl = 'https://generativelanguage.googleapis.com/v1beta/openai',
+  DeepSeekUrl = 'https://api.deepseek.com/v1',
+  QwenUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1'
 }
 export interface OptionInfo {
   value: string
@@ -57,16 +73,104 @@ export const ModelInfoList = [
     value: 'openai',
     option: [
       {
-        value: 'gpt-5',
-        label: 'GPT-5'
+        value: 'gpt-4o',
+        label: 'GPT-4o'
       },
       {
-        value: 'gpt-5-mini',
-        label: 'GPT-5 Mini'
+        value: 'gpt-4o-mini',
+        label: 'GPT-4o Mini'
       },
       {
-        value: 'gpt-5-nano',
-        label: 'GPT-5 Nano'
+        value: 'gpt-4-turbo',
+        label: 'GPT-4 Turbo'
+      },
+      {
+        value: 'gpt-3.5-turbo',
+        label: 'GPT-3.5 Turbo'
+      }
+    ]
+  },
+  {
+    icon: <img src={claude} className="!max-w-none w-[24px] h-[24px]" />,
+    key: 'Claude',
+    value: 'claude',
+    option: [
+      {
+        value: 'claude-sonnet-4-20250514',
+        label: 'Claude Sonnet 4'
+      },
+      {
+        value: 'claude-opus-4-20250514',
+        label: 'Claude Opus 4'
+      },
+      {
+        value: 'claude-3-5-sonnet-20241022',
+        label: 'Claude 3.5 Sonnet'
+      },
+      {
+        value: 'claude-3-5-haiku-20241022',
+        label: 'Claude 3.5 Haiku'
+      }
+    ]
+  },
+  {
+    icon: <img src={gemini} className="!max-w-none w-[24px] h-[24px]" />,
+    key: 'Gemini',
+    value: 'gemini',
+    option: [
+      {
+        value: 'gemini-2.5-pro-preview-05-06',
+        label: 'Gemini 2.5 Pro'
+      },
+      {
+        value: 'gemini-2.5-flash-preview-05-20',
+        label: 'Gemini 2.5 Flash'
+      },
+      {
+        value: 'gemini-2.0-flash',
+        label: 'Gemini 2.0 Flash'
+      },
+      {
+        value: 'gemini-1.5-pro',
+        label: 'Gemini 1.5 Pro'
+      }
+    ]
+  },
+  {
+    icon: <img src={deepseek} className="!max-w-none w-[24px] h-[24px]" />,
+    key: 'DeepSeek',
+    value: 'deepseek',
+    option: [
+      {
+        value: 'deepseek-chat',
+        label: 'DeepSeek Chat (V3)'
+      },
+      {
+        value: 'deepseek-reasoner',
+        label: 'DeepSeek Reasoner (R1)'
+      }
+    ]
+  },
+  {
+    icon: <img src={qwen} className="!max-w-none w-[24px] h-[24px]" />,
+    key: 'Qwen',
+    value: 'qwen',
+    option: [
+      {
+        value: 'qwen-max',
+        label: 'Qwen Max'
+      },
+      {
+        value: 'qwen-plus',
+        label: 'Qwen Plus'
+      },
+      {
+        value: 'qwen-turbo',
+        label: 'Qwen Turbo'
+      },
+      {
+        value: 'qwen-vl-max',
+        label: 'Qwen VL Max'
       }
     ]
   },
