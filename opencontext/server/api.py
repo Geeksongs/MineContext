@@ -26,6 +26,7 @@ from .routes import (
     monitoring,
     screenshots,
     settings,
+    suggestion_response,
     vaults,
     web,
     conversation,
@@ -55,3 +56,4 @@ router.include_router(settings.router)
 router.include_router(conversation.router)  # 新增：会话路由
 router.include_router(messages.router)  # 新增：消息路由
 router.include_router(documents.router)  # 新增：文档上传路由
+router.include_router(suggestion_response.router)  # Proactive suggestion responses

@@ -4,6 +4,7 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 import type { WindowApiType } from './index'
+import type { ProactiveSuggestion, ProactiveSuggestionResponse } from 'src/renderer/src/types/proactive-suggestion'
 
 declare global {
   interface Window {
@@ -41,6 +42,10 @@ declare global {
       readFile: (filePath: string) => Promise<any>
       copyFile: (srcPath: string) => Promise<any>
       getFiles: () => Promise<any>
+    }
+    proactiveSuggestionAPI: {
+      show: (suggestion: ProactiveSuggestion) => Promise<void>
+      onResponse: (callback: (response: ProactiveSuggestionResponse) => void) => () => void
     }
   }
 }

@@ -12,6 +12,8 @@ import { CaptureSource } from '@interface/common/source'
 
 import { VaultDocumentType } from '@shared/enums/global-enum'
 import { ScreenSettings } from '@renderer/store/setting'
+import { IpcServerPushChannel } from '@shared/ipc-server-push-channel'
+import { ProactiveSuggestion, ProactiveSuggestionResponse } from 'src/renderer/src/types/proactive-suggestion'
 
 // Custom APIs for renderer
 const api = {
@@ -118,6 +120,17 @@ const eventLoop = {
   getHomeLatestActivity: (status: string) => ipcRenderer.invoke(IpcChannel.Get_Home_LatestActivity, status)
 }
 
+const proactiveSuggestionAPI = {
+  show: (suggestion: ProactiveSuggestion) =>
+    ipcRenderer.invoke(IpcChannel.ProactiveSuggestion_Show, suggestion),
+  onResponse: (callback: (response: ProactiveSuggestionResponse) => void) => {
+    const wrappedCallback = (_event: Electron.IpcRendererEvent, response: ProactiveSuggestionResponse) =>
+      callback(response)
+    ipcRenderer.on(IpcServerPushChannel.ProactiveSuggestion_Response, wrappedCallback)
+    return () => ipcRenderer.removeListener(IpcServerPushChannel.ProactiveSuggestion_Response, wrappedCallback)
+  }
+}
+
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
@@ -130,6 +143,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('fileService', fileService)
     contextBridge.exposeInMainWorld('serverPushAPI', serverPushAPI)
     contextBridge.exposeInMainWorld('eventLoop', eventLoop)
+    contextBridge.exposeInMainWorld('proactiveSuggestionAPI', proactiveSuggestionAPI)
   } catch (error) {
     console.error(error)
   }
@@ -148,6 +162,8 @@ if (process.contextIsolated) {
   window.serverPushAPI = serverPushAPI
   // @ts-ignore (define in dts)
   window.eventLoop = eventLoop
+  // @ts-ignore (define in dts)
+  window.proactiveSuggestionAPI = proactiveSuggestionAPI
 }
 
 ipcRenderer.on('main-log', (_, ...args) => {

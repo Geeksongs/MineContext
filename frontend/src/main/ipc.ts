@@ -12,6 +12,7 @@ import { MIN_WINDOW_HEIGHT, MIN_WINDOW_WIDTH } from '@shared/config/constant'
 import { IpcChannel } from '@shared/IpcChannel'
 import { BrowserWindow, dialog, ipcMain, ProxyConfig, session, shell, systemPreferences } from 'electron'
 import { Notification } from 'src/renderer/src/types/notification'
+import { ProactiveSuggestion } from 'src/renderer/src/types/proactive-suggestion'
 
 import appService from './services/AppService'
 import { fileStorage as fileManager } from './services/FileStorage'
@@ -284,6 +285,11 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
   })
   ipcMain.handle(IpcChannel.Notification_OnClick, (_, notification: Notification) => {
     mainWindow.webContents.send(IpcServerPushChannel.NotificationClick, notification)
+  })
+
+  // Proactive Suggestion
+  ipcMain.handle(IpcChannel.ProactiveSuggestion_Show, async (_, suggestion: ProactiveSuggestion) => {
+    await notificationService.sendProactiveSuggestion(suggestion)
   })
 
   // system

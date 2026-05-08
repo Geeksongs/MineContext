@@ -54,6 +54,10 @@ export enum IpcChannel {
   Notification_Send = 'notification:send',
   Notification_OnClick = 'notification:on-click',
 
+  // Proactive Suggestion
+  ProactiveSuggestion_Show = 'proactive-suggestion:show',
+  ProactiveSuggestion_Response = 'proactive-suggestion:response',
+
   Webview_SetOpenLinkExternal = 'webview:set-open-link-external',
   Webview_SetSpellCheckEnabled = 'webview:set-spell-check-enabled',
 

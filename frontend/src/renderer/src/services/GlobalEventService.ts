@@ -4,6 +4,7 @@
 import axiosInstance from '@renderer/services/axiosConfig'
 import { NotificationQueue } from '@renderer/utils/queue/NotificationQueue'
 import { Notification } from '@renderer/types/notification'
+import { ProactiveSuggestion, ProactiveSuggestionResponse } from '@renderer/types/proactive-suggestion'
 import { addEvent } from '@renderer/store/events'
 import { removeMarkdownSymbols } from '@renderer/utils/time'
 import { PushDataTypes } from '@renderer/constant/feed'
@@ -15,9 +16,35 @@ class GlobalEventService {
   private static instance: GlobalEventService
   private pollingTimer: NodeJS.Timeout | null = null
   private notificationQueue: NotificationQueue
+  private responseCleanup: (() => void) | null = null
 
   private constructor() {
     this.notificationQueue = NotificationQueue.getInstance()
+    this.setupProactiveSuggestionResponseListener()
+  }
+
+  private setupProactiveSuggestionResponseListener(): void {
+    // Listen for proactive suggestion responses from the main process
+    if (window.proactiveSuggestionAPI) {
+      this.responseCleanup = window.proactiveSuggestionAPI.onResponse((response: ProactiveSuggestionResponse) => {
+        this.handleProactiveSuggestionResponse(response)
+      })
+    }
+  }
+
+  private async handleProactiveSuggestionResponse(response: ProactiveSuggestionResponse): Promise<void> {
+    try {
+      // Send the response to the backend for storage
+      await axiosInstance.post('/api/suggestion/response', {
+        suggestion_id: response.suggestionId,
+        action: response.action,
+        reason: response.reason,
+        timestamp: response.timestamp / 1000 // Convert to seconds for Python
+      })
+      logger.info(`Proactive suggestion response saved: ${response.action} for ${response.suggestionId}`)
+    } catch (error) {
+      logger.error('Failed to save proactive suggestion response:', error)
+    }
   }
 
   public static getInstance(): GlobalEventService {
@@ -49,6 +76,11 @@ class GlobalEventService {
       clearInterval(this.pollingTimer)
       this.pollingTimer = null
     }
+    // Cleanup response listener
+    if (this.responseCleanup) {
+      this.responseCleanup()
+      this.responseCleanup = null
+    }
   }
 
   // Fetch and process events
@@ -79,6 +111,12 @@ class GlobalEventService {
       if (event.type === PushDataTypes.ACTIVITY_GENERATED) {
         return
       }
+
+      // For TIP_GENERATED events, trigger system notification
+      if (event.type === PushDataTypes.TIP_GENERATED) {
+        this.triggerProactiveSuggestionNotification(event)
+      }
+
       // Create a corresponding notification based on the event type
       const notification: Notification = {
         id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -93,6 +131,24 @@ class GlobalEventService {
 
       // Add the notification to the queue
       this.notificationQueue.add(notification)
+    })
+  }
+
+  // Trigger system notification for proactive suggestions
+  private triggerProactiveSuggestionNotification(event: any): void {
+    if (!window.proactiveSuggestionAPI) {
+      logger.warn('proactiveSuggestionAPI not available')
+      return
+    }
+
+    const suggestion: ProactiveSuggestion = {
+      id: event.id || `tip-${Date.now()}`,
+      title: event.data?.title || 'Smart Tip',
+      content: removeMarkdownSymbols(event.data?.content || event.data?.title || '')
+    }
+
+    window.proactiveSuggestionAPI.show(suggestion).catch((error) => {
+      logger.error('Failed to show proactive suggestion notification:', error)
     })
   }
 

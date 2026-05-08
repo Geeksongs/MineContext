@@ -922,3 +922,38 @@ class UnifiedStorage:
             logger.error("Storage not initialized")
             return False
         return self._document_backend.clear_message_thinking(message_id)
+
+    # Suggestion response operations
+    def save_suggestion_response(
+        self,
+        suggestion_id: str,
+        action: str,
+        reason: Optional[str] = None,
+        timestamp: float = None,
+    ) -> bool:
+        """Save user's response to a proactive suggestion"""
+        if not self._initialized or not self._document_backend:
+            logger.error("Storage not initialized")
+            return False
+        return self._document_backend.save_suggestion_response(
+            suggestion_id=suggestion_id,
+            action=action,
+            reason=reason,
+            timestamp=timestamp,
+        )
+
+    def get_suggestion_responses(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        action: Optional[str] = None,
+    ) -> List[Dict]:
+        """Get suggestion responses list"""
+        if not self._initialized or not self._document_backend:
+            logger.error("Storage not initialized")
+            return []
+        return self._document_backend.get_suggestion_responses(
+            limit=limit,
+            offset=offset,
+            action=action,
+        )

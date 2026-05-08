@@ -162,6 +162,20 @@ class SQLiteBackend(IDocumentStorageBackend):
         """
         )
 
+        # Suggestion responses table - stores user responses to proactive suggestions
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS suggestion_responses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                suggestion_id TEXT NOT NULL,
+                action TEXT NOT NULL,
+                reason TEXT,
+                timestamp REAL NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """
+        )
+
         # Monitoring tables
         # Token usage tracking - keep 7 days of data
         cursor.execute(
@@ -273,6 +287,12 @@ class SQLiteBackend(IDocumentStorageBackend):
         )
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_tips_time ON tips (created_at)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_suggestion_responses_suggestion_id ON suggestion_responses (suggestion_id)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_suggestion_responses_action ON suggestion_responses (action)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_suggestion_responses_created ON suggestion_responses (created_at)")
 
         # Monitoring table indexes
         cursor.execute(
@@ -898,6 +918,82 @@ class SQLiteBackend(IDocumentStorageBackend):
             return [dict(row) for row in rows]
         except Exception as e:
             logger.exception(f"Failed to get tip list: {e}")
+            return []
+
+    # Suggestion response operations
+    def save_suggestion_response(
+        self,
+        suggestion_id: str,
+        action: str,
+        reason: Optional[str] = None,
+        timestamp: float = None,
+    ) -> bool:
+        """Save user's response to a proactive suggestion"""
+        if not self._initialized:
+            return False
+
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO suggestion_responses (suggestion_id, action, reason, timestamp, created_at)
+                VALUES (?, ?, ?, ?, ?)
+            """,
+                (
+                    suggestion_id,
+                    action,
+                    reason,
+                    timestamp or datetime.now().timestamp(),
+                    datetime.now(),
+                ),
+            )
+
+            self.connection.commit()
+            logger.info(f"Suggestion response saved: {action} for {suggestion_id}")
+            return True
+        except Exception as e:
+            self.connection.rollback()
+            logger.exception(f"Failed to save suggestion response: {e}")
+            return False
+
+    def get_suggestion_responses(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        action: Optional[str] = None,
+    ) -> List[Dict]:
+        """Get suggestion responses list"""
+        if not self._initialized:
+            return []
+
+        cursor = self.connection.cursor()
+        try:
+            where_conditions = []
+            params = []
+
+            if action:
+                where_conditions.append("action = ?")
+                params.append(action)
+
+            where_clause = " AND ".join(
+                where_conditions) if where_conditions else "1=1"
+            params.extend([limit, offset])
+
+            cursor.execute(
+                f"""
+                SELECT id, suggestion_id, action, reason, timestamp, created_at
+                FROM suggestion_responses
+                WHERE {where_clause}
+                ORDER BY created_at DESC
+                LIMIT ? OFFSET ?
+            """,
+                params,
+            )
+
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            logger.exception(f"Failed to get suggestion responses: {e}")
             return []
 
     def get_name(self) -> str:
