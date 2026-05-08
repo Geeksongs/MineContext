@@ -316,11 +316,11 @@ const Settings: FC<SettingsProps> = (props) => {
               initialValues={{
                 modelPlatform: ModelTypeList.Doubao,
                 [`${ModelTypeList.Doubao}-modelId`]: 'doubao-seed-1-6-flash-250828',
-                [`${ModelTypeList.OpenAI}-modelId`]: 'gpt-4o',
-                [`${ModelTypeList.Claude}-modelId`]: 'claude-sonnet-4-20250514',
-                [`${ModelTypeList.Gemini}-modelId`]: 'gemini-2.5-flash-preview-05-20',
-                [`${ModelTypeList.DeepSeek}-modelId`]: 'deepseek-chat',
-                [`${ModelTypeList.Qwen}-modelId`]: 'qwen-plus'
+                [`${ModelTypeList.OpenAI}-modelId`]: 'gpt-5.5',
+                [`${ModelTypeList.Claude}-modelId`]: 'claude-opus-4.7',
+                [`${ModelTypeList.Gemini}-modelId`]: 'gemini-3.1-pro',
+                [`${ModelTypeList.DeepSeek}-modelId`]: 'deepseek-v4-pro',
+                [`${ModelTypeList.Qwen}-modelId`]: 'qwen-3.6-plus'
               }}>
               <FormItem label="Model platform" field={'modelPlatform'} requiredSymbol={false}>
                 <ModelRadio />

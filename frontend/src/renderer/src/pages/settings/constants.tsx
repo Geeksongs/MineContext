@@ -73,20 +73,28 @@ export const ModelInfoList = [
     value: 'openai',
     option: [
       {
-        value: 'gpt-4o',
-        label: 'GPT-4o'
+        value: 'gpt-5.5',
+        label: 'GPT-5.5'
       },
       {
-        value: 'gpt-4o-mini',
-        label: 'GPT-4o Mini'
+        value: 'gpt-5.4',
+        label: 'GPT-5.4'
       },
       {
-        value: 'gpt-4-turbo',
-        label: 'GPT-4 Turbo'
+        value: 'gpt-5',
+        label: 'GPT-5'
       },
       {
-        value: 'gpt-3.5-turbo',
-        label: 'GPT-3.5 Turbo'
+        value: 'gpt-5-mini',
+        label: 'GPT-5 Mini'
+      },
+      {
+        value: 'o1',
+        label: 'o1 (Reasoning)'
+      },
+      {
+        value: 'o1-mini',
+        label: 'o1 Mini'
       }
     ]
   },
@@ -96,20 +104,20 @@ export const ModelInfoList = [
     value: 'claude',
     option: [
       {
-        value: 'claude-sonnet-4-20250514',
+        value: 'claude-opus-4.7',
+        label: 'Claude Opus 4.7'
+      },
+      {
+        value: 'claude-opus-4.5',
+        label: 'Claude Opus 4.5'
+      },
+      {
+        value: 'claude-sonnet-4',
         label: 'Claude Sonnet 4'
       },
       {
-        value: 'claude-opus-4-20250514',
-        label: 'Claude Opus 4'
-      },
-      {
-        value: 'claude-3-5-sonnet-20241022',
-        label: 'Claude 3.5 Sonnet'
-      },
-      {
-        value: 'claude-3-5-haiku-20241022',
-        label: 'Claude 3.5 Haiku'
+        value: 'claude-haiku-4',
+        label: 'Claude Haiku 4'
       }
     ]
   },
@@ -119,20 +127,20 @@ export const ModelInfoList = [
     value: 'gemini',
     option: [
       {
-        value: 'gemini-2.5-pro-preview-05-06',
+        value: 'gemini-3.1-pro',
+        label: 'Gemini 3.1 Pro'
+      },
+      {
+        value: 'gemini-3-pro',
+        label: 'Gemini 3 Pro'
+      },
+      {
+        value: 'gemini-3-flash',
+        label: 'Gemini 3 Flash'
+      },
+      {
+        value: 'gemini-2.5-pro',
         label: 'Gemini 2.5 Pro'
-      },
-      {
-        value: 'gemini-2.5-flash-preview-05-20',
-        label: 'Gemini 2.5 Flash'
-      },
-      {
-        value: 'gemini-2.0-flash',
-        label: 'Gemini 2.0 Flash'
-      },
-      {
-        value: 'gemini-1.5-pro',
-        label: 'Gemini 1.5 Pro'
       }
     ]
   },
@@ -142,12 +150,20 @@ export const ModelInfoList = [
     value: 'deepseek',
     option: [
       {
-        value: 'deepseek-chat',
-        label: 'DeepSeek Chat (V3)'
+        value: 'deepseek-v4-pro',
+        label: 'DeepSeek V4 Pro'
       },
       {
-        value: 'deepseek-reasoner',
-        label: 'DeepSeek Reasoner (R1)'
+        value: 'deepseek-v4',
+        label: 'DeepSeek V4'
+      },
+      {
+        value: 'deepseek-v4-flash',
+        label: 'DeepSeek V4 Flash'
+      },
+      {
+        value: 'deepseek-r1',
+        label: 'DeepSeek R1 (Reasoning)'
       }
     ]
   },
@@ -157,20 +173,20 @@ export const ModelInfoList = [
     value: 'qwen',
     option: [
       {
-        value: 'qwen-max',
-        label: 'Qwen Max'
+        value: 'qwen-3.6-plus',
+        label: 'Qwen 3.6 Plus'
       },
       {
-        value: 'qwen-plus',
-        label: 'Qwen Plus'
+        value: 'qwen-3',
+        label: 'Qwen 3'
       },
       {
-        value: 'qwen-turbo',
-        label: 'Qwen Turbo'
+        value: 'qwen-3-turbo',
+        label: 'Qwen 3 Turbo'
       },
       {
-        value: 'qwen-vl-max',
-        label: 'Qwen VL Max'
+        value: 'qwen-vl-3',
+        label: 'Qwen VL 3 (Vision)'
       }
     ]
   },
