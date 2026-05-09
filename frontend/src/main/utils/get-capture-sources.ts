@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Beijing Volcano Engine Technology Co., Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
-import { app, desktopCapturer, DesktopCapturerSource, systemPreferences } from 'electron'
+import { app, desktopCapturer, DesktopCapturerSource } from 'electron'
 import screenshot from 'screenshot-desktop'
 import { exec, spawn } from 'node:child_process'
 import { promisify } from 'node:util'

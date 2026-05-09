@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Beijing Volcano Engine Technology Co., Ltd.
 // SPDX-License-Identifier: Apache-2.0
 
-import { app, desktopCapturer, shell, systemPreferences } from 'electron'
+import { app, desktopCapturer, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
 import { getLogger } from '@shared/logger/main'
@@ -26,6 +26,20 @@ class ScreenshotService extends CaptureSourcesTools {
    * @returns {Promise<boolean>} - Returns true if permission is granted, otherwise false.
    */
   async checkPermissions(): Promise<boolean> {
+    if (isMac) {
+      try {
+        const sources = await desktopCapturer.getSources({
+          types: ['screen'],
+          thumbnailSize: { width: 1, height: 1 }
+        })
+        const hasAccess = sources.length > 0
+        logger.info(`Screen recording check: ${sources.length} source(s) → ${hasAccess ? 'granted' : 'denied'}`)
+        return hasAccess
+      } catch (e: any) {
+        logger.error('Screen recording permission check failed:', e.message)
+        return false
+      }
+    }
     return true
   }
 

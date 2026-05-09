@@ -260,17 +260,12 @@ app.whenReady().then(() => {
   latestActivityTask.init()
 
   app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
+    // Use the stored mainWindow reference so the popup window doesn't interfere
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show()
+      mainWindow.focus()
     } else {
-      // If window exists but is hidden, show it
-      const existingWindow = BrowserWindow.getAllWindows()[0]
-      if (existingWindow) {
-        existingWindow.show()
-        existingWindow.focus()
-      }
+      createWindow()
     }
   })
 

@@ -13,37 +13,62 @@ import { formatRelativeTime } from '@renderer/utils/time'
 import chatIcon from '@renderer/assets/icons/chat-icon.svg'
 import feedEmptyIcon from '@renderer/assets/icons/feed-empty.svg'
 import { useNavigation } from '@renderer/hooks/use-navigation'
+import axiosInstance from '@renderer/services/axiosConfig'
 
-// Define the properties received by the component
 interface FeedCardProps {
   id: string
-  feedType: PushDataTypes // Card type (used to control styles, icons)
+  feedType: PushDataTypes
   time: string
   desc?: string
-  doc_id?: string // Optional: document ID, for navigation
-  doc_title?: string // Optional: document title, for display
-  doc_content?: string // Optional: document content, for display
+  doc_id?: string
+  doc_title?: string
+  doc_content?: string
 }
+
+type ResponseState = 'accepted' | 'rejected' | null
 
 const ProactiveFeedCardItem: FC<FeedCardProps> = (props) => {
   const { id, feedType, time, desc, doc_content, doc_id } = props
-  // const isDocument =
-  //   feedType === PushDataTypes.DAILY_SUMMARY_GENERATED || feedType === PushDataTypes.WEEKLY_SUMMARY_GENERATED
-  // const { navigateToVault } = useNavigation()
   const [visible, setVisible] = useState(false)
+  const [response, setResponse] = useState<ResponseState>(null)
+  const [showReason, setShowReason] = useState(false)
+  const [reason, setReason] = useState('')
   const { removeEvent, setCurrentActiveEvent } = useEvents()
-  // const handleNavigateToVault = () => {
-  //   if (doc_id) {
-  //     navigateToVault(Number(doc_id))
-  //   }
-  // }
   const { navigateToVault } = useNavigation()
+
+  const isTip = feedType === PushDataTypes.TIP_GENERATED
+
   const handleChat = () => {
     if (feedType === PushDataTypes.DAILY_SUMMARY_GENERATED) {
       navigateToVault(Number(doc_id))
     } else {
       setCurrentActiveEvent(id)
       setVisible(true)
+    }
+  }
+
+  const sendResponse = async (action: 'accept' | 'reject', r?: string) => {
+    try {
+      await axiosInstance.post('/api/suggestion/response', {
+        suggestion_id: id,
+        action,
+        reason: r || undefined,
+        timestamp: Date.now()
+      })
+      setResponse(action === 'accept' ? 'accepted' : 'rejected')
+      setShowReason(false)
+    } catch {
+      Message.error('Failed to save response')
+    }
+  }
+
+  const handleAccept = () => sendResponse('accept')
+
+  const handleReject = () => {
+    if (showReason) {
+      sendResponse('reject', reason)
+    } else {
+      setShowReason(true)
     }
   }
 
@@ -66,10 +91,11 @@ const ProactiveFeedCardItem: FC<FeedCardProps> = (props) => {
   }
 
   return (
-    <div className="flex flex-col items-start  py-2 pr-3 pl-2 gap-2 w-full rounded-lg bg-[var(--background-color-bg-2,#FAFBFD)] group">
-      <div className="flex items-start gap-2  w-full">
+    <div className="flex flex-col items-start py-2 pr-3 pl-2 gap-2 w-full rounded-lg bg-[var(--background-color-bg-2,#FAFBFD)] group">
+      <div className="flex items-start gap-2 w-full">
         <div>{eventIcon}</div>
         <div className="flex flex-col items-start gap-1 w-full">
+          {/* Header row */}
           <div className="flex justify-between items-center w-full">
             <div className="flex gap-2 items-center flex-1">
               <div className="text-black font-['Roboto'] text-[13px] leading-[22px] font-medium">{eventTitle}</div>
@@ -83,20 +109,14 @@ const ProactiveFeedCardItem: FC<FeedCardProps> = (props) => {
               <IconClose />
             </div>
           </div>
+
+          {/* Description */}
           <div className="text-[var(--text-color-text-1,#0B0B0F)] w-full font-[Roboto] text-[13px] font-normal leading-[18px]">
             {removeMarkdown(desc || '')}
           </div>
+
+          {/* Check / View button */}
           <div className="flex items-center gap-3">
-            {/* {isDocument && (
-              <div
-                className="text-[#5252FF] font-['PingFang SC'] text-[13px] leading-[22px] tracking-[0.039px] font-medium cursor-pointer"
-                style={{
-                  fontWeight: 500
-                }}
-                onClick={handleNavigateToVault}>
-                View
-              </div>
-            )} */}
             <div className="flex items-center gap-1 cursor-pointer" onClick={handleChat}>
               <div>
                 <img src={chatIcon} alt="chat icon" />
@@ -106,13 +126,73 @@ const ProactiveFeedCardItem: FC<FeedCardProps> = (props) => {
               </div>
             </div>
           </div>
+
+          {/* Accept / Reject — only for Tips, hidden once responded */}
+          {isTip && (
+            <div className="w-full mt-1">
+              {!response ? (
+                <>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleAccept}
+                      style={{
+                        flex: 1, padding: '3px 0', borderRadius: 6, border: 'none',
+                        background: '#2563eb', color: '#fff', fontSize: 12,
+                        fontWeight: 600, cursor: 'pointer'
+                      }}>
+                      接受
+                    </button>
+                    <button
+                      onClick={handleReject}
+                      style={{
+                        flex: 1, padding: '3px 0', borderRadius: 6,
+                        border: '1px solid #d1d5db',
+                        background: 'transparent', color: '#374151', fontSize: 12,
+                        fontWeight: 600, cursor: 'pointer'
+                      }}>
+                      {showReason ? '确认拒绝' : '拒绝'}
+                    </button>
+                  </div>
+                  {showReason && (
+                    <textarea
+                      autoFocus
+                      placeholder="理由（可选）..."
+                      value={reason}
+                      onChange={e => setReason(e.target.value)}
+                      style={{
+                        marginTop: 6, width: '100%', boxSizing: 'border-box',
+                        border: '1px solid #d1d5db', borderRadius: 6,
+                        fontSize: 12, padding: '4px 8px', resize: 'none',
+                        height: 52, outline: 'none', fontFamily: 'inherit',
+                        color: '#0B0B0F'
+                      }}
+                    />
+                  )}
+                </>
+              ) : (
+                <div style={{
+                  fontSize: 12, fontWeight: 600,
+                  color: response === 'accepted' ? '#16a34a' : '#dc2626'
+                }}>
+                  {response === 'accepted' ? '✓ 已接受' : '✗ 已拒绝'}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
+
       <ProactiveFeedModal
         visible={visible}
         onCancel={() => setVisible(false)}
         content={doc_content || ''}
         time={formatRelativeTime(time)}
+        responded={response}
+        onAccept={handleAccept}
+        onReject={handleReject}
+        showReason={showReason}
+        reason={reason}
+        onReasonChange={setReason}
       />
     </div>
   )
@@ -142,16 +222,11 @@ const ProactiveFeedCard: React.FC = ({}) => {
             Proactive
           </div>
         </div>
-        <div
-          className="text-black font-['Roboto'] text-sm font-medium leading-[22px] tracking-[0.042px]"
-          style={{
-            fontWeight: 500
-          }}>
+        <div className="text-black font-['Roboto'] text-sm font-medium leading-[22px] tracking-[0.042px]" style={{ fontWeight: 500 }}>
           Feed
         </div>
       </div>
-      <div
-        className={`flex flex-col item-center ${!isEmpty && 'items-start'} gap-[6px] flex-1 self-stretch h-[500px] overflow-y-auto`}>
+      <div className={`flex flex-col item-center ${!isEmpty && 'items-start'} gap-[6px] flex-1 self-stretch h-[500px] overflow-y-auto`}>
         {!isEmpty ? (
           sortedEventsList.map((event) => <ProactiveFeedCardItem key={event.id} {...transferType(event)} />)
         ) : (

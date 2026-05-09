@@ -16,6 +16,10 @@ extraResources:
     to: backend/
     filter:
       - '**/*'
+  - from: ../config/
+    to: backend/config/
+    filter:
+      - '**/*'
 asarUnpack:
   - resources/**
 win:
@@ -46,6 +50,7 @@ mac:
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+    - NSScreenCaptureDescription: Application requests access to record the screen for activity tracking.
   notarize: false
 dmg:
   artifactName: ${name}-${version}.${ext}

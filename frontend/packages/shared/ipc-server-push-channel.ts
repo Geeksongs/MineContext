@@ -9,5 +9,6 @@ export enum IpcServerPushChannel {
   Tray_ToggleRecording = 'push:tray-toggle-recording',
   Tray_NavigateToScreenMonitor = 'push:tray-navigate-to-screen-monitor',
   Home_PushLatestActivity = 'push:latest-activity',
-  ProactiveSuggestion_Response = 'push:proactive-suggestion-response'
+  ProactiveSuggestion_Response = 'push:proactive-suggestion-response',
+  ProactiveSuggestion_PopupData = 'push:proactive-suggestion-popup-data'
 }
